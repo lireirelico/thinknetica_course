@@ -25,14 +25,11 @@ def leap_year?(year)
 end
 
 def yday(day, month, year)
-  count = 0
   day_of_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
   day_of_month[1] += 1 if leap_year?(year)
-  (0...month - 1).each { |i| count += day_of_month[i] }
-  count + day
+  day_of_month.take(month - 1).sum + day
 end
 
-day_of_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 day = get_value('число')
 month = get_value('месяц')
 year = get_value('год')

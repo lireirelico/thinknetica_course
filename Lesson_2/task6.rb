@@ -41,7 +41,8 @@ def check_int?(int)
 end
 
 def total_amount(hash)
-  hash.each do |k, v| puts "#{k}: #{v['price'] * v['count']}"
+  hash.each do |k, v|
+    puts "#{k}: #{v['price'] * v['count']}"
   end
 end
 
