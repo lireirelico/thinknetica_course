@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Lesson_1.iml" filepath="$PROJECT_DIR$/.idea/modules/Lesson_1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Lesson_2.iml" filepath="$PROJECT_DIR$/.idea/modules/Lesson_2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Lesson_4.iml" filepath="$PROJECT_DIR$/.idea/modules/Lesson_4.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/thinknetica_course.iml" filepath="$PROJECT_DIR$/.idea/thinknetica_course.iml" />
     </modules>
   </component>
