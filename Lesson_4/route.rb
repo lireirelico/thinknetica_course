@@ -1,8 +1,11 @@
+require_relative 'station'
+
 class Route
   attr_reader :stations
 
   def initialize(starting_station, end_station)
     @stations = [starting_station, end_station]
+    valid?
   end
 
   def add_intermediate_station(name)
@@ -23,5 +26,12 @@ class Route
 
   def name
     "'#{@stations.first.name}' - '#{@stations.last.name}'"
+  end
+
+  private
+
+  def valid?
+    raise 'Необходимо добавить станцию' unless stations.compact.size == 2
+    true
   end
 end

@@ -59,18 +59,24 @@ class Interface
         end
       end
     else
-      gets.chomp.to_i
+      gets.chomp
     end
   end
 
   def create_train
-    number = get_user_data { "Insert number of train:" }
     type = get_user_data(type: :train_type) { "Insert type of train:" }
-    case type
-    when 1
-      @trains << PassengerTrain.new(number)
-    when 2
-      @trains << CargoTrain.new(number)
+
+    begin
+      number = get_user_data { "Insert number of train:" }
+      case type
+      when 1
+        @trains << PassengerTrain.new(number)
+      when 2
+        @trains << CargoTrain.new(number)
+      end
+    rescue RuntimeError => e
+      puts e.message
+      retry
     end
 
     puts "Поезд ##{number} создан"

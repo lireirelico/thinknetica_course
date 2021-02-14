@@ -14,6 +14,7 @@ class Train
     @speed = 0
     @@all_trains[number] = self
     register_instance
+    valid?
   end
 
   def find(number)
@@ -78,11 +79,15 @@ class Train
   end
 
   def check_route?
-    puts 'Нет маршрута'.red unless @route
     @route ? true : false
   end
 
   private
+
+  def valid?
+    raise 'Не правильный формат номера поезда' unless number =~ /^[\w\d]{3}-*[\w\d]{2}$/i
+    true
+  end
 
   def get_station_number(station)
     @route.stations.get_station_number.index(station)
