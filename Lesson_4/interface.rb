@@ -6,6 +6,7 @@ require_relative 'station'
 require_relative 'route'
 require 'colorize'
 require 'cli/ui'
+require 'pry'
 
 class Interface
 
@@ -16,6 +17,7 @@ class Interface
   STATION_MENU = [
     'Создать станцию',
     'Посмотреть список станций',
+    'Посмотреть список поездов на станции',
     'Назад'
   ]
   TRAIN_MENU = [
@@ -25,6 +27,7 @@ class Interface
     'Отцепить вагон от поезда',
     'Переместить поезд вперед',
     'Переместить поезд назад',
+    'Занять место или объем в вагоне',
     'Информация о поезде',
     'Назад'
   ]
@@ -101,6 +104,8 @@ class Interface
         create_station
       when STATION_MENU[1]
         @stations.each { |station| puts station.name }
+      when STATION_MENU[2]
+        list_of_train
       when 'Назад'
         return
       else
@@ -109,9 +114,40 @@ class Interface
     end
   end
 
-  def add_cargo_to_train
+  def list_of_train
+    return unless @stations
+    station = select_station
+    station.each_train { |train| train_info(train) }
+  end
+
+  def train_info(train)
+    puts "Номер поезда: #{train.number}"
+    case train.class.to_s
+    when PassengerTrain.to_s
+      puts "Тип поезда: #{TRAIN_TYPE[0]}"
+    when CargoTrain.to_s
+      puts "Тип поезда: #{TRAIN_TYPE[1]}"
+    end
+    puts "Кол-во вагонов: #{train.carriages.size}"
+  end
+
+  def select_station
+    return unless get_all_station.any?
+    choice = CLI::UI.ask('Выберете станцию', options: get_all_station)
+    @stations.find { |i| i.name == choice }
+  end
+
+  def add_carriage_to_train
     train = select_train
-    train.attach_carriage
+    case train.class.to_s
+    when PassengerTrain.to_s
+      places = get_user_data { "Insert number of seats in the passenger carriage:" }
+      carriage = PassengerCarriage.new(places.to_i)
+    when CargoTrain.to_s
+      volume = get_user_data { "Insert number of capacity in the cargo carriage:" }
+      carriage = CargoCarriage.new(volume.to_i)
+    end
+    train.attach_carriage(carriage)
     cargo_information(train)
   end
 
@@ -135,6 +171,24 @@ class Interface
 
   def cargo_information(train)
     puts "Кол-во вагонов: #{train.carriages.count}".yellow
+    train.each_carriage do |carriage|
+      binding.pry
+      puts "Номер вагона: #{carriage.code}"
+      case carriage.class.to_s
+      when PassengerCarriage.to_s
+        passenger_carriage_info(carriage)
+      when CargoCarriage.to_s
+        cargo_carriage_info(carriage)
+      end
+    end
+  end
+
+  def passenger_carriage_info(carriage)
+    puts "Свободных мест: #{carriage.free_places}; Занятых мест: #{carriage.occupied_places}"
+  end
+
+  def cargo_carriage_info(carriage)
+    puts "Свободный объем: #{carriage.free_capacity}; Занятых объем: #{carriage.occupied_capacity}"
   end
 
   def current_station(train)
@@ -164,7 +218,7 @@ class Interface
       when TRAIN_MENU[1]
         set_route if check_train?
       when TRAIN_MENU[2]
-        add_cargo_to_train if check_train?
+        add_carriage_to_train if check_train?
       when TRAIN_MENU[3]
         unhook_carriage if check_train?
       when TRAIN_MENU[4]
@@ -172,6 +226,8 @@ class Interface
       when TRAIN_MENU[5]
         move_back if check_train?
       when TRAIN_MENU[6]
+        action_with_carriage if check_train?
+      when TRAIN_MENU[7]
         train_information if check_train?
       when 'Назад'
         return
@@ -179,6 +235,24 @@ class Interface
         puts 'Ошибка! Пожалуйста повторите ввод'.red
       end
     end
+  end
+
+  def action_with_carriage
+    train = select_train
+    carriage = select_carriage(train)
+    case carriage.class.to_s
+    when PassengerCarriage.to_s
+      carriage.take_place
+    when CargoCarriage.to_s
+      volume = get_user_data { "Insert volume for cargo carriage:" }
+      carriage.take_volume(volume)
+    end
+  end
+
+  def select_carriage(train)
+    return unless train.carriages.any?
+    choice = CLI::UI.ask('Выберете вагон', options: get_all_carriages(train))
+    train.carriages.find { |i| i.code == choice.to_i }
   end
 
   def create_route
@@ -259,6 +333,10 @@ class Interface
     @stations.map { |station| station.name }
   end
 
+  def get_all_carriages(train)
+    train.carriages.map { |carriage| carriage.code.to_s }
+  end
+
   def initialize_variables
     @stations = []
     @trains = []
@@ -274,7 +352,7 @@ class Interface
   def select_train
     return unless get_all_train.any?
     choice = CLI::UI.ask('Выберете поезд', options: get_all_train)
-    @trains.find { |i| i.number == choice.to_i }
+    @trains.find { |i| i.number == choice }
   end
 end
 

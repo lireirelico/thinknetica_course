@@ -17,6 +17,10 @@ class Train
     valid?
   end
 
+  def each_carriage
+    @carriages.each { |carriage| yield(carriage) }
+  end
+
   def find(number)
     @@all_trains[number]
   end

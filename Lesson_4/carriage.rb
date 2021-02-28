@@ -14,7 +14,7 @@ class Carriage
   private
 
   def valid?
-    raise 'Недопустимое значение вместимости вагона' unless capacity < 1
+    raise 'Недопустимое значение вместимости вагона' unless capacity > 1
     raise 'Номер вагона должен быть целым числом' unless code.integer?
     true
   end
